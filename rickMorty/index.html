@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rick and Morty | Álbum de Colección</title>
+    <style>
+        :root {
+            --dark-bg: #0f172a;
+            --portal-green: #4ade80;
+            --portal-blue: #38bdf8;
+            --gold: #facc15;
+            --page-bg: #f1f5f9;
+            --book-border: #2d1b0d;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--dark-bg);
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px);
+            background-size: 550px 550px, 350px 350px;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* --- Buscador --- */
+        .search-area {
+            margin: 30px 0;
+            text-align: center;
+            z-index: 10;
+        }
+
+        h1 {
+            color: var(--portal-green);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(74, 222, 128, 0.6);
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 50px;
+            border: 1px solid var(--portal-blue);
+        }
+
+        input {
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 5px 20px;
+            width: 300px;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        button.btn-search {
+            background: var(--portal-blue);
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            color: #0f172a;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button.btn-search:hover {
+            background: var(--portal-green);
+            transform: scale(1.05);
+        }
+
+        /* --- Estructura del Álbum --- */
+        .album-viewport {
+            perspective: 1500px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .book {
+            width: 900px;
+            height: 600px;
+            background: var(--book-border);
+            border-radius: 10px;
+            display: flex;
+            padding: 15px;
+            position: relative;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.7);
+            transform-style: preserve-3d;
+        }
+
+        .page {
+            width: 50%;
+            height: 100%;
+            background: var(--page-bg);
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 15px;
+            position: relative;
+        }
+
+        .page-left {
+            border-radius: 5px 0 0 5px;
+            background: linear-gradient(to right, #e2e8f0, #f8fafc);
+            box-shadow: inset -10px 0 20px rgba(0,0,0,0.1);
+        }
+
+        .page-right {
+            border-radius: 0 5px 5px 0;
+            background: linear-gradient(to left, #e2e8f0, #f8fafc);
+            box-shadow: inset 10px 0 20px rgba(0,0,0,0.1);
+        }
+
+        /* Lomo del libro */
+        .book::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: rgba(0,0,0,0.3);
+            transform: translateX(-50%);
+            z-index: 5;
+        }
+
+        /* --- Estampas (Cromos) --- */
+        .sticker-slot {
+            background: rgba(0,0,0,0.03);
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .sticker {
+            width: 100%;
+            height: 100%;
+            background: white;
+            padding: 5px;
+            box-shadow: 2px 4px 10px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            animation: peelIn 0.5s ease-out;
+            position: relative;
+        }
+
+        @keyframes peelIn {
+            from { transform: rotate(10deg) scale(0.5); opacity: 0; }
+            to { transform: rotate(0deg) scale(1); opacity: 1; }
+        }
+
+        .sticker img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .sticker-info {
+            padding: 8px 2px;
+            color: #334155;
+            text-align: center;
+        }
+
+        .sticker-name {
+            font-weight: bold;
+            font-size: 0.85rem;
+            color: #1e293b;
+            margin-bottom: 3px;
+        }
+
+        .sticker-meta {
+            font-size: 0.7rem;
+            color: #64748b;
+        }
+
+        .sticker-id {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            font-size: 0.6rem;
+            color: var(--gold);
+            background: #1e293b;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 4px;
+        }
+
+        .status-Alive { background: var(--portal-green); box-shadow: 0 0 5px var(--portal-green); }
+        .status-Dead { background: #f87171; box-shadow: 0 0 5px #f87171; }
+        .status-unknown { background: #94a3b8; }
+
+        /* --- Controles --- */
+        .nav-btn {
+            background: rgba(255,255,255,0.1);
+            color: var(--portal-blue);
+            border: 2px solid var(--portal-blue);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: 0.3s;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: var(--portal-blue);
+            color: #0f172a;
+            box-shadow: 0 0 20px var(--portal-blue);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+        }
+
+        /* Animación de cambio de página */
+        .page-flip {
+            animation: flipEffect 0.6s ease-in-out;
+        }
+
+        @keyframes flipEffect {
+            0% { transform: rotateY(0deg); }
+            50% { transform: rotateY(-10deg) scale(1.02); }
+            100% { transform: rotateY(0deg); }
+        }
+
+        .pagination-status {
+            margin-top: 20px;
+            color: var(--portal-blue);
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="search-area">
+        <h1>Rick and Morty Album</h1>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Busca personajes..." onkeypress="if(event.key==='Enter') buscar()">
+            <button class="btn-search" onclick="buscar()">BUSCAR</button>
+        </div>
+        <div id="pageInfo" class="pagination-status">Ingresa un nombre para empezar la colección</div>
+    </div>
+
+    <div class="album-viewport">
+        <button id="prevBtn" class="nav-btn" onclick="cambiarVista(-1)" disabled>❮</button>
+
+        <div class="book" id="albumBook">
+            <!-- Página Izquierda -->
+            <div class="page page-left" id="leftPage">
+                <div class="sticker-slot"></div>
+                <div class="sticker-slot"></div>
+                <div class="sticker-slot"></div>
+                <div class="sticker-slot"></div>
+            </div>
+            <!-- Página Derecha -->
+            <div class="page page-right" id="rightPage">
+                <div class="sticker-slot"></div>
+                <div class="sticker-slot"></div>
+                <div class="sticker-slot"></div>
+                <div class="sticker-slot"></div>
+            </div>
+        </div>
+
+        <button id="nextBtn" class="nav-btn" onclick="cambiarVista(1)" disabled>❯</button>
+    </div>
+
+    <script>
+        let personajesCargados = [];
+        let vistaActual = 0; // Cada vista muestra 8 personajes (2 páginas)
+
+        async function buscar() {
+            const input = document.getElementById('searchInput').value;
+            if(!input) return;
+
+            try {
+                const response = await fetch(`/personajes/buscar?nombre=${encodeURIComponent(input)}`);
+                const data = await response.json();
+
+                personajesCargados = data.personajes || [];
+                vistaActual = 0;
+                actualizarAlbum();
+
+                if(personajesCargados.length === 0) {
+                    document.getElementById('pageInfo').innerText = "No se encontraron personajes.";
+                }
+            } catch (error) {
+                console.error("Error buscando:", error);
+            }
+        }
+
+        function actualizarAlbum() {
+            const slots = document.querySelectorAll('.sticker-slot');
+            const book = document.getElementById('albumBook');
+            
+            // Animación de hoja
+            book.classList.remove('page-flip');
+            void book.offsetWidth; 
+            book.classList.add('page-flip');
+
+            // Limpiar slots
+            slots.forEach(slot => slot.innerHTML = '');
+
+            // Calcular personajes para la vista actual (8 por vista)
+            const inicio = vistaActual * 8;
+            const fin = inicio + 8;
+            const subset = personajesCargados.slice(inicio, fin);
+
+            subset.forEach((p, index) => {
+                slots[index].innerHTML = `
+                    <div class="sticker">
+                        <span class="sticker-id">#${String(p.id).padStart(3, '0')}</span>
+                        <img src="${p.imagen}" alt="${p.nombre}">
+                        <div class="sticker-info">
+                            <div class="sticker-name">${p.nombre}</div>
+                            <div class="sticker-meta">
+                                <span class="status-dot status-${p.estado}"></span>
+                                ${p.estado} - ${p.especie}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Actualizar botones y texto
+            const totalVistas = Math.ceil(personajesCargados.length / 8);
+            document.getElementById('prevBtn').disabled = vistaActual <= 0;
+            document.getElementById('nextBtn').disabled = vistaActual >= totalVistas - 1 || totalVistas === 0;
+            
+            if(totalVistas > 0) {
+                document.getElementById('pageInfo').innerText = 
+                    `Mostrando vista ${vistaActual + 1} de ${totalVistas} (${personajesCargados.length} personajes)`;
+            }
+        }
+
+        function cambiarVista(paso) {
+            vistaActual += paso;
+            actualizarAlbum();
+        }
+
+        // Búsqueda inicial
+        window.onload = () => {
+            document.getElementById('searchInput').value = "Rick";
+            buscar();
+        };
+    </script>
+</body>
+</html>
