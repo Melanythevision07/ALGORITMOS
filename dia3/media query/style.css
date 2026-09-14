@@ -1,0 +1,36 @@
+@media (width <= 1920px) {
+    body{
+        background-color: aqua;
+    }
+}
+
+@media (width <= 1280px) {
+    body{
+        background-color: rgb(179, 255, 0);
+    }
+}
+
+@media (width <= 800px) {
+    body{
+        background-color: rgb(226, 16, 26);
+    }
+}
+
+@media  (width <= 480px) {
+    body{
+        background-color: rgb(24, 4, 136);
+    }
+}
+
+/* Cambiamos el límite máximo a 440px (el ancho del iPhone 16 Pro Max) */
+@media  (width <= 440px) {
+    body{
+    /* Aquí cambias el color al que tú quieras */
+    background-color: #ff5733; 
+    
+    /* Adaptamos el contenedor al tamaño exacto del dispositivo */
+    width: 440px;
+    height: 956px;
+    }
+}
+
